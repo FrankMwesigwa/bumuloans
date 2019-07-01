@@ -1,48 +1,55 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getBookWithReviewer, clearBookWithReviewer } from '../../store/books/actions';
+import { Link, withRouter} from 'react-router-dom';
+import { deleteBook, getBook } from '../../store/books/actions';
 
-export class BooksDetails extends Component {
+class BookDetails extends Component {
+
   static propTypes = {
-    getBooksWithReviewer: PropTypes.func.isRequired
+    deleteBook: PropTypes.func.isRequired,
+    getBook: PropTypes.func.isRequired,
+    book: PropTypes.object.isRequired,
   };
 
-  ComponentDidMount = () => {
-    this.props.dispatch(getBookWithReviewer(this.props.match.params.id));
-  };
-
-  ComponentWillUnMount = () => {
-    this.props.dispatch(clearBookWithReviewer());
-  };
-
-  renderBook = books =>
-    books.book ? (
-      <div className="container">
-        <div className="header">
-          <h2>{books.book.name}</h2>
-          <h2>{books.book.author}</h2>
-          <div>
-            Reviewed by: {books.reviewer.lastname} {books.reviewer.firstname}
-          </div>
-        </div>
-      </div>
-    ) : null;
+  componentDidMount() {                                                         
+    this.props.getBook(this.props.match.params.id);
+  }
 
   render() {
-    console.log(this.props);
-    const { books } = this.props.books;
+    const { book, loading } = this.props.book;
+
+    if (book === null || loading) {
+      return <div>Loading....</div>;
+    } 
+
     return (
-      <div>
-        <h1>Current BookDetails in our Database</h1>
-        <div>{this.renderBook(books)}</div>
-      </div>
+        <div className="row">
+          <div className="col-md-2">
+            <p className="text-center">{book.author}</p>
+          </div>
+          <div className="col-md-10">
+            <p className="lead">{book.name}</p>
+            <p className="lead">{book.author}</p>
+            <p className="lead">{book.rating}</p>
+            <p className="lead">{book.price}</p>
+            <p className="lead">{book.review}</p>
+            <p className="lead">{book.pages}</p>
+          </div>
+          <div className="btn-group">
+          <Link to={`/books/edit/${book._id}`} className='btn btn-info'>
+            Edit
+          </Link>
+          <button className="btn btn-danger" type="button" onClick={() => this.props.deleteBook(book._id,this.props.history)}>   
+            Delete
+          </button>
+          <Link to="/" className="btn btn-secondary">Close</Link>                                          
+        </div>
+        </div>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  books: state.book
-});
+const mapStateToProps = state => ({ book: state.book });
 
-export default connect(mapStateToProps)(BooksDetails);
+export default connect(mapStateToProps, { deleteBook, getBook })(withRouter(BookDetails));

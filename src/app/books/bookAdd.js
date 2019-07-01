@@ -1,32 +1,46 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { addBook, clearNewBook } from '../../store/books/actions';
+import { withRouter } from 'react-router-dom';
+import { addBook } from '../../store/books/actions';
 
-export class AddBook extends Component {
+class BookAdd extends Component {
   static propTypes = {
-    addBook: PropTypes.func.isRequired
+    addBook: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired
   };
+  
+    state = {
+      name: '',
+      author: '',
+      review: '',
+      pages: '',
+      rating: '',
+      price: '' ,
+      enteredBy:''
+    };
 
-  state = {
-    name: '',
-    author: '',
-    review: '',
-    pages: '',
-    rating: '',
-    price: ''
-  };
+    onChangeHandler = e => {
+      this.setState({ [e.target.name]: e.target.value });
+    }
 
-  onChangeHandler = e => this.setState({ [e.target.name]: e.target.value });
-
-  onSubmitHandler = async e => {
+    onSubmitHandler = e => {
     e.preventDefault();
-    this.props.dispatch(addBook({ ...this.state, ownerId: this.props.user.login.id }));
-  };
 
-  componentWillUnMount = () => {
-    this.props.dispatch(clearNewBook());
-  };
+    const { user } = this.props.auth;
+
+    const newBook = {
+      name: this.state.name,
+      author: this.state.author,
+      review: this.state.review,
+      pages: this.state.pages,
+      rating: this.state.rating,
+      price: this.state.price,
+      enteredBy: user.name,
+    };
+
+    this.props.addBook(newBook, this.props.history)
+  }
 
   render() {
     const { name, author, review, pages, rating, price } = this.state;
@@ -90,7 +104,7 @@ export class AddBook extends Component {
 }
 
 const mapStateToProps = state => ({
-  books: state.book
+  auth: state.auth
 });
 
-export default connect(mapStateToProps)(AddBook);
+export default connect(mapStateToProps, { addBook })(withRouter(BookAdd));

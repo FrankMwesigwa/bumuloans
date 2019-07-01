@@ -1,33 +1,52 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom'
 import { getBooks } from '../../store/books/actions';
-import BookItem from './bookItem';
 
-export class BooksList extends Component {
+class BooksList extends Component {
+
   static propTypes = {
-    getBooks: PropTypes.func.isRequired
+    getBooks: PropTypes.func.isRequired,
+    book: PropTypes.object.isRequired
   };
 
-  ComponentDidMount = () => {
-    this.props.dispatch(getBooks(3, 0, 'desc'));
-  };
-
-  renderItems = books =>
-    books.list ? books.list.map(item => <BookItem {...item} key={item._id} />) : null;
+  componentDidMount() {
+    this.props.getBooks();
+  }
 
   render() {
+    const { books, loading } = this.props.book;
+
+    if (books === null || loading) {
+      return <div>Loading....</div>;
+    } 
     return (
-      <div>
-        <h1>Current Books in our Database</h1>
-        <div>{this.renderItems(this.props.books)}</div>
+      <div className="feed">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+            {books.map(book => (
+              <div key={ book._id }>
+                <hr/>          
+                <h4><Link to={`/books/${book._id}`}><span>Book Title</span>: {book.name}</Link></h4>
+                <p className="lead">{book.rating}</p>
+                <p className="lead">{book.price}</p>
+                <p className="lead">{book.review}</p>
+                <p className="lead">{book.pages}</p>
+              </div>
+            )
+          )}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  books: state.book
+  book: state.book
 });
 
-export default connect(mapStateToProps)(BooksList);
+export default connect(mapStateToProps, { getBooks })(BooksList);

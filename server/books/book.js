@@ -5,6 +5,10 @@ const bookSchema = mongoose.Schema({
         type:String,
         required:true
     },
+    enteredBy:{
+        type:String,
+        required:false
+    },
     author:{
         type:String,
         required:true

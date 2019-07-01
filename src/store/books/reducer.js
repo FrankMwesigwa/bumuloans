@@ -1,42 +1,48 @@
-import { constants } from './actions';
+import { constants } from './actions'
 
-const booksReducer = (state = {}, action) => {
+const initialState = {
+  books: [],
+  book: {},
+  loading: false
+};
+
+const booksReducer = (state = initialState, action) => {
   switch (action.type) {
-    case constants.GET_BOOKS:
-      return { ...state, list: action.payload };
-    case constants.GET_BOOK:
-      return { ...state, book: action.payload };
-    case constants.GET_BOOK_W_REVIEWER:
+    case constants.BOOK_LOADING:
       return {
         ...state,
-        book: action.payload.book,
-        reviewer: action.payload.reviewer
+        loading: true
       };
-    case constants.CLEAR_BOOK_W_REVIEWER:
+    case constants.GET_BOOKS:
       return {
         ...state,
-        book: action.payload.book,
-        reviewer: action.payload.reviewer
+        books: action.payload,
+        loading: false
+      };
+    case constants.GET_BOOK:
+      return {
+        ...state,
+        book: action.payload,
+        loading: false
       };
     case constants.ADD_BOOK:
-    case constants.CLEAR_BOOK:
-      return { ...state, newBook: action.payload };
-    case constants.CLEAR_UPDATE_BOOK:
       return {
         ...state,
-        updateBook: action.payload.updateBook,
-        book: action.payload.book,
-        postDeleted: action.payload.postDeleted
+        books: [ ...state.posts, action.payload]
+      };
+    case constants.DELETE_BOOK:
+      return {
+        ...state,
+        books: state.books.filter(item => item._id !== action.payload)
       };
     case constants.UPDATE_BOOK:
-      return { ...state, updateBook: action.payload.success, book: action.payload.doc };
-    case constants.DELETE_BOOK:
-      return { ...state, postDeleted: action.payload };
-    case constants.GET_USER_POSTS:
-      return { ...state, userPosts: action.payload };
+        return {
+            ...state,
+            updateBook:action.payload.success
+        }
     default:
       return state;
   }
-};
+}
 
 export default booksReducer;

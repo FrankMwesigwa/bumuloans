@@ -58,7 +58,7 @@ router.post('/add', (req, res) => {
     });
 });
 
-router.put('/edit/:id', (req, res) => {
+/*router.put('/edit/:id', (req, res) => {
   if (!req.body.name) {
     return res.status(400).send({
       message: 'Note content can not be empty'
@@ -82,7 +82,14 @@ router.put('/edit/:id', (req, res) => {
         message: 'Error updating note with id ' + req.params.id
       });
     });
-});
+});*/
+
+router.post('/edit',(req,res)=>{
+  Book.findByIdAndUpdate(req.body._id,req.body,{new:true},(err,book)=>{
+      if(err) return res.status(400).send(err);
+      res.json({success:true, book})
+  })
+})
 
 router.delete('/delete/:id', (req, res) => {
   Book.findByIdAndRemove(req.params.id)
